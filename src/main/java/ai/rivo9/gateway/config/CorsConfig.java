@@ -8,39 +8,50 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class CorsConfig {
 
     @Value("${cors.allowed-origins}")
-    private String[] allowedOrigins;
+    private String allowedOrigins;
 
     @Value("${cors.allowed-methods}")
-    private String[] allowedMethods;
+    private String allowedMethods;
 
     @Value("${cors.allowed-headers}")
-    private String[] allowedHeaders;
+    private String allowedHeaders;
 
     @Value("${cors.allow-credentials}")
     private boolean allowCredentials;
 
     @Bean
     public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(allowCredentials);
-        
-        // Handle wildcard vs specific origins
-        if (allowedOrigins.length == 1 && "*".equals(allowedOrigins[0])) {
-            config.addAllowedOriginPattern("*");
-        } else {
-            config.setAllowedOrigins(Arrays.asList(allowedOrigins));
-        }
-        
-        config.setAllowedMethods(Arrays.asList(allowedMethods));
-        config.setAllowedHeaders(Arrays.asList(allowedHeaders));
+
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+        List<String> methods = Arrays.stream(allowedMethods.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+        List<String> headers = Arrays.stream(allowedHeaders.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+
+        config.setAllowedOrigins(origins);
+        config.setAllowedMethods(methods);
+        config.setAllowedHeaders(headers);
         config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
+
         return new CorsFilter(source);
     }
 }
