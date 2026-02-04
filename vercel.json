@@ -1,0 +1,9 @@
+{
+  "routes": [
+    {
+      "src": "/gateway/(.*)",
+      "methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
+      "dest": "/gateway/$1"
+    }
+  ]
+}
