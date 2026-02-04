@@ -13,13 +13,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+            // VERY IMPORTANT: enable CORS support
             .cors()
             .and()
+            // Disable CSRF for APIs
             .csrf().disable()
+            // Allow all requests for now
             .authorizeHttpRequests(auth -> auth
+                // Allow preflight requests explicitly
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().permitAll()
-            );
+            )
+            // Disable default login page & basic auth
+            .httpBasic().disable()
+            .formLogin().disable();
 
         return http.build();
     }
