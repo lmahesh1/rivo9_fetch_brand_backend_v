@@ -8,8 +8,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 public class CorsConfig {
@@ -32,21 +30,29 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(allowCredentials);
 
-        List<String> origins = Arrays.stream(allowedOrigins.split(","))
+        // Origins
+        Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
-                .collect(Collectors.toList());
+                .forEach(config::addAllowedOrigin);
 
-        List<String> methods = Arrays.stream(allowedMethods.split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
+        // Methods
+        if ("*".equals(allowedMethods)) {
+            config.addAllowedMethod("*");
+        } else {
+            Arrays.stream(allowedMethods.split(","))
+                    .map(String::trim)
+                    .forEach(config::addAllowedMethod);
+        }
 
-        List<String> headers = Arrays.stream(allowedHeaders.split(","))
-                .map(String::trim)
-                .collect(Collectors.toList());
+        // Headers
+        if ("*".equals(allowedHeaders)) {
+            config.addAllowedHeader("*");
+        } else {
+            Arrays.stream(allowedHeaders.split(","))
+                    .map(String::trim)
+                    .forEach(config::addAllowedHeader);
+        }
 
-        config.setAllowedOrigins(origins);
-        config.setAllowedMethods(methods);
-        config.setAllowedHeaders(headers);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
