@@ -22,6 +22,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Allow preflight requests explicitly
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // Allow actuator health checks
+                .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().permitAll()
             )
             // Disable default login page & basic auth

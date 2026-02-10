@@ -1,8 +1,8 @@
 [phases.setup]
-nixPkgs = ['maven', 'jdk21']
+nixPkgs = ['maven', 'openjdk21']
 
 [phases.build]
-cmds = ['mvn clean install -DskipTests']
+cmds = ['mvn clean package -DskipTests']
 
-[phases.start]
+[start]
 cmd = 'java -jar target/rivo9-gateway-1.0.0.jar'
