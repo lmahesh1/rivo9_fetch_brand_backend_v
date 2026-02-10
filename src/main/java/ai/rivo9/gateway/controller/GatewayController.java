@@ -11,13 +11,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
 public class GatewayController {
 
     private final GatewayService gatewayService;
 
-    @PostMapping("/api/secure/rivofetch")
+    @PostMapping("/secure/rivofetch")
     public ResponseEntity<String> rivoFetch(
             @Valid @RequestBody BrandRequest request,
             @RequestHeader(value = "x-api-key", required = false) String apiKey,

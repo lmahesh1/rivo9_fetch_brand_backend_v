@@ -30,13 +30,17 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(allowCredentials);
 
-        // Origins
-        Arrays.stream(allowedOrigins.split(","))
-                .map(String::trim)
-                .forEach(config::addAllowedOrigin);
+        // Origins - use pattern for wildcard
+        if ("*".equals(allowedOrigins.trim())) {
+            config.addAllowedOriginPattern("*");
+        } else {
+            Arrays.stream(allowedOrigins.split(","))
+                    .map(String::trim)
+                    .forEach(config::addAllowedOriginPattern);
+        }
 
         // Methods
-        if ("*".equals(allowedMethods)) {
+        if ("*".equals(allowedMethods.trim())) {
             config.addAllowedMethod("*");
         } else {
             Arrays.stream(allowedMethods.split(","))
@@ -45,7 +49,7 @@ public class CorsConfig {
         }
 
         // Headers
-        if ("*".equals(allowedHeaders)) {
+        if ("*".equals(allowedHeaders.trim())) {
             config.addAllowedHeader("*");
         } else {
             Arrays.stream(allowedHeaders.split(","))
