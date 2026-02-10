@@ -22,7 +22,7 @@ public class GatewayController {
     public ResponseEntity<String> rivoFetch(
             @Valid @RequestBody BrandRequest request,
             @RequestHeader(value = "x-api-key", required = false) String apiKey,
-            @RequestHeader(value = "X-Custom-Origin", required = false) String customOrigin,
+            @RequestHeader(value = "Origin", required = false) String customOrigin,
             HttpServletRequest httpRequest) {
         
         log.info("Gateway received /rivofetch request: url={}", request.getUrl());
