@@ -1,0 +1,8 @@
+.settings/
+target/test-classes/
+.classpath
+.factorypath
+.project
+start.bat
+vercel.json
+*.md
