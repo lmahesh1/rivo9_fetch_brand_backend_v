@@ -27,7 +27,7 @@ public class GatewayService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("x-api-key", apiKey);
         if (customOrigin != null && !customOrigin.isEmpty()) {
-            headers.set("Origin", customOrigin);
+            headers.set("X-Custom-Origin", customOrigin);
         }
 
         HttpEntity<BrandRequest> entity = new HttpEntity<>(request, headers);

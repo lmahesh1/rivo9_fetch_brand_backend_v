@@ -1,35 +1,65 @@
 package ai.rivo9.gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class SecurityConfig {
 
+    @Value("${cors.allowed-origins:*}")
+    private String allowedOriginsProp;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
-            // VERY IMPORTANT: enable CORS support
-            .cors()
-            .and()
-            // Disable CSRF for APIs
-            .csrf().disable()
-            // Allow all requests for now
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Allow preflight requests explicitly
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Allow actuator health checks
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().permitAll()
             )
-            // Disable default login page & basic auth
-            .httpBasic().disable()
-            .formLogin().disable();
+            .httpBasic(httpBasic -> httpBasic.disable())
+            .formLogin(formLogin -> formLogin.disable());
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        
+        config.setAllowCredentials(false);
+        
+        List<String> origins = Arrays.stream(allowedOriginsProp.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
+        
+        if (origins.contains("*")) {
+            config.addAllowedOriginPattern("*");
+        } else {
+            origins.forEach(config::addAllowedOriginPattern);
+        }
+        
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
