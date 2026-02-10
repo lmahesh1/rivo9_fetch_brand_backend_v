@@ -2,7 +2,7 @@
 nixPkgs = ['maven', 'jdk21']
 
 [phases.build]
-cmds = ['mvn clean install -DskipTests']
+cmds = ['mvn clean package -DskipTests -Dmaven.test.skip=true -Dmaven.javadoc.skip=true']
 
 [phases.start]
-cmd = 'java -jar target/rivo9-gateway-1.0.0.jar'
+cmd = 'java -Xmx512m -jar target/rivo9-gateway-1.0.0.jar'
