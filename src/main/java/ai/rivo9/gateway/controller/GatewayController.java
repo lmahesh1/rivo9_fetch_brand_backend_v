@@ -21,33 +21,21 @@ public class GatewayController {
     @PostMapping("/secure/rivofetch")
     public ResponseEntity<String> rivoFetch(
             @Valid @RequestBody BrandRequest request,
-            @RequestHeader(value = "x-api-key", required = false) String apiKey,
+            @RequestHeader(value = "x-api-key") String apiKey,
             @RequestHeader(value = "X-Custom-Origin", required = false) String customOrigin,
             HttpServletRequest httpRequest) {
         
         log.info("Gateway received /rivofetch request: url={}", request.getUrl());
-        
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("{\"error\":\"API key is required in x-api-key header\"}");
-        }
-
         return gatewayService.forwardToRivoFetch(request, apiKey, customOrigin);
     }
 
     @PostMapping("/forward")
     public ResponseEntity<String> forward(
             @Valid @RequestBody BrandRequest request,
-            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestHeader(value = "Authorization") String authHeader,
             HttpServletRequest httpRequest) {
         
         log.info("Gateway received /forward request: url={}", request.getUrl());
-        
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("{\"error\":\"JWT Bearer token is required in Authorization header\"}");
-        }
-
         String jwtToken = authHeader.substring(7);
         return gatewayService.forwardToForward(request, jwtToken);
     }
