@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/health", "/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
+            .anonymous(anonymous -> anonymous.disable())
             .httpBasic(httpBasic -> httpBasic.disable())
             .formLogin(formLogin -> formLogin.disable());
 

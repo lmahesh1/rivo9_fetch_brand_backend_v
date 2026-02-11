@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,19 +20,28 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         
         String path = request.getRequestURI();
         
+        // Skip authentication for public endpoints
+        if (path.equals("/api/health") || path.startsWith("/actuator/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
+        // Authenticate based on endpoint
         if (path.startsWith("/api/secure/")) {
             String apiKey = request.getHeader("x-api-key");
             if (apiKey != null && !apiKey.trim().isEmpty()) {
-                SecurityContextHolder.getContext().setAuthentication(
-                    new UsernamePasswordAuthenticationToken("api-key-user", null, Collections.emptyList())
-                );
+                UsernamePasswordAuthenticationToken auth = 
+                    new UsernamePasswordAuthenticationToken("api-key-user", apiKey, 
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } else if (path.startsWith("/api/forward")) {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                SecurityContextHolder.getContext().setAuthentication(
-                    new UsernamePasswordAuthenticationToken("jwt-user", null, Collections.emptyList())
-                );
+                UsernamePasswordAuthenticationToken auth = 
+                    new UsernamePasswordAuthenticationToken("jwt-user", authHeader, 
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
         
